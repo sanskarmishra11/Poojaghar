@@ -1,0 +1,164 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "UserProfile",
+      "description": "Represents a user account in PoojaGhar.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique user ID matching Firebase Authentication UID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address."
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"],
+          "description": "Access control role of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the user registered."
+        }
+      },
+      "required": ["uid", "email", "name", "role", "createdAt"]
+    },
+    "booking": {
+      "title": "Booking",
+      "description": "Represents a scheduled live pooja with a Panditji.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique booking ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user who booked."
+        },
+        "serviceId": {
+          "type": "string",
+          "description": "ID of the Pooja service."
+        },
+        "serviceName": {
+          "type": "string",
+          "description": "Name of the Pooja."
+        },
+        "panditId": {
+          "type": "string",
+          "description": "ID of the assigned Panditji."
+        },
+        "panditName": {
+          "type": "string",
+          "description": "Name of the assigned Panditji."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Chosen date for the Pooja."
+        },
+        "time": {
+          "type": "string",
+          "description": "Chosen time slot."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Price paid in ₹."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "enum": ["pending", "paid", "failed"],
+          "description": "Payment authorization status."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["scheduled", "completed", "cancelled"],
+          "description": "Operational status of the live pooja session."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the booking was made."
+        }
+      },
+      "required": ["id", "userId", "serviceId", "serviceName", "panditId", "panditName", "date", "time", "amount", "paymentStatus", "status", "createdAt"]
+    },
+    "subscription": {
+      "title": "Subscription",
+      "description": "Represents a subscription to the Kids Hindu Traditions platform.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique subscription ID."
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the parent."
+        },
+        "planId": {
+          "type": "string",
+          "description": "ID of the subscription plan (e.g., shishya, seekh, sanskriti)."
+        },
+        "planName": {
+          "type": "string",
+          "description": "Name of the subscription plan tier."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Periodic subscription billing price in ₹."
+        },
+        "billingCycle": {
+          "type": "string",
+          "enum": ["monthly", "yearly"],
+          "description": "Interval of billing cycle."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "cancelled", "past_due"],
+          "description": "Current authorization or cycle state."
+        },
+        "childName": {
+          "type": "string",
+          "description": "Registered child's name for materials."
+        },
+        "childAge": {
+          "type": "number",
+          "description": "Registered child's age."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the subscription started."
+        }
+      },
+      "required": ["id", "userId", "planId", "planName", "amount", "billingCycle", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "userProfile",
+      "description": "User profiles containing account details."
+    },
+    "bookings/{bookingId}": {
+      "schema": "booking",
+      "description": "Record of booked live video rituals."
+    },
+    "subscriptions/{subscriptionId}": {
+      "schema": "subscription",
+      "description": "Active kids' traditional education tiers."
+    }
+  }
+}

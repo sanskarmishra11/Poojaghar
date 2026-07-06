@@ -1,0 +1,6 @@
+{
+  "name": "PoojaGhar",
+  "description": "A sacred spiritual platform offering live video pooja sessions with verified Pandits and Hindu cultural subscription programs for kids.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

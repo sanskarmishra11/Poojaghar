@@ -1,0 +1,135 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Default Security Net - Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Entity verification blueprints
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'email', 'name', 'phone', 'role', 'createdAt'])
+        && data.keys().size() == 6
+        && data.uid is string
+        && data.uid.size() <= 128
+        && data.email is string
+        && data.email.size() <= 256
+        && data.name is string
+        && data.name.size() <= 128
+        && data.phone is string
+        && data.phone.size() <= 32
+        && data.role is string
+        && (data.role == 'user' || data.role == 'admin')
+        && data.createdAt is string;
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll(['id', 'userId', 'serviceId', 'serviceName', 'panditId', 'panditName', 'date', 'time', 'amount', 'paymentStatus', 'status', 'createdAt'])
+        && data.keys().size() == 12
+        && data.id is string
+        && data.id.size() <= 128
+        && data.userId is string
+        && data.userId == request.auth.uid
+        && data.serviceId is string
+        && data.serviceName is string
+        && data.panditId is string
+        && data.panditName is string
+        && data.date is string
+        && data.time is string
+        && data.amount is number
+        && data.amount >= 0
+        && data.paymentStatus is string
+        && (data.paymentStatus == 'pending' || data.paymentStatus == 'paid' || data.paymentStatus == 'failed')
+        && data.status is string
+        && (data.status == 'scheduled' || data.status == 'completed' || data.status == 'cancelled')
+        && data.createdAt is string;
+    }
+
+    function isValidSubscription(data) {
+      return data.keys().hasAll(['id', 'userId', 'planId', 'planName', 'amount', 'billingCycle', 'status', 'createdAt'])
+        && data.keys().size() == 8
+        && data.id is string
+        && data.id.size() <= 128
+        && data.userId is string
+        && data.userId == request.auth.uid
+        && data.planId is string
+        && data.planName is string
+        && data.amount is number
+        && data.amount >= 0
+        && data.billingCycle is string
+        && (data.billingCycle == 'monthly' || data.billingCycle == 'yearly')
+        && data.status is string
+        && (data.status == 'active' || data.status == 'cancelled' || data.status == 'past_due')
+        && data.createdAt is string;
+    }
+
+    // 1. User profiles collection
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) 
+        && isValidUserProfile(incoming())
+        && incoming().role == existing().role
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if false;
+    }
+
+    // 2. Bookings collection
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+        && isValidId(bookingId) 
+        && isValidBooking(incoming())
+        && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn()
+        && isValidBooking(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && (existing().status != 'completed' && existing().status != 'cancelled')
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'paymentStatus']);
+      allow delete: if false;
+    }
+
+    // 3. Subscriptions collection
+    match /subscriptions/{subId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() 
+        && isValidId(subId) 
+        && isValidSubscription(incoming())
+        && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn()
+        && isValidSubscription(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status']);
+      allow delete: if false;
+    }
+  }
+}

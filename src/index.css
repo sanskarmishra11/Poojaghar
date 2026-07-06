@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sanskrit: "Tiro Devanagari Sanskrit", serif;
+  --font-yatra: "Yatra One", cursive;
+  --font-sans: "Hind", sans-serif;
+
+  --color-saffron: #FF6B00;
+  --color-cream: #FFF8F0;
+  --color-gold: #D4A017;
+  --color-maroon: #8B0000;
+  --color-lotus: #FFB6C1;
+
+  --animate-diya-flicker: diya-flicker 2s infinite ease-in-out;
+  --animate-petal-float: petal-float 8s infinite ease-in-out;
+  --animate-spin-slow: spin 25s linear infinite;
+}
+
+@keyframes diya-flicker {
+  0%, 100% {
+    transform: scale(1) rotate(-1deg);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.7));
+  }
+  50% {
+    transform: scale(1.1) rotate(2deg) translateY(-1px);
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(212, 160, 23, 0.9));
+  }
+  25%, 75% {
+    transform: scale(0.95) rotate(-0.5deg);
+    opacity: 0.88;
+    filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.6));
+  }
+}
+
+@keyframes petal-float {
+  0% {
+    transform: translateY(0vh) translateX(0vw) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-80vh) translateX(5vw) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* Custom Scrollbar for Devotion vibe */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF8F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #8B0000;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF6B00;
+}
+
+/* Custom utility class for gold border gradient */
+.border-gold-gradient {
+  border-image: linear-gradient(to right, #D4A017, #FF6B00, #8B0000) 1;
+}
+
+/* Glowing text utilities */
+.glow-text-saffron {
+  text-shadow: 0 0 8px rgba(255, 107, 0, 0.3);
+}
+.glow-text-gold {
+  text-shadow: 0 0 10px rgba(212, 160, 23, 0.4);
+}
